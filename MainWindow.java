@@ -10,25 +10,31 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 
-class TravelPackage implements Serializable {
+/* DATA MODEL - Travel Packages */
 
+/**
+ * Basic travel package with destination, price, and duration.
+ */
+class TravelPackage implements Serializable {
 
    private String destination;
    private double price;
    private int duration;
 
-
+   /**
+    * @param destination travel destination
+    * @param price package price
+    * @param duration trip duration in days
+    */
    public TravelPackage(String destination, double price, int duration) {
        this.destination = destination;
        this.price = price;
        this.duration = duration;
    }
 
-
    public String getDestination() { return destination; }
    public double getPrice() { return price; }
    public int getDuration() { return duration; }
-
 
    @Override
    public String toString() {
@@ -37,13 +43,21 @@ class TravelPackage implements Serializable {
 }
 
 
+/**
+ * Adventure package with activity type and difficulty level.
+ */
 class AdventurePackage extends TravelPackage {
-
 
    private String activityType;
    private String difficultyLevel;
 
-
+   /**
+    * @param destination travel destination
+    * @param price package price
+    * @param duration trip duration in days
+    * @param activityType type of adventure activity
+    * @param difficultyLevel difficulty level of activity
+    */
    public AdventurePackage(String destination, double price, int duration,
                            String activityType, String difficultyLevel) {
        super(destination, price, duration);
@@ -51,10 +65,8 @@ class AdventurePackage extends TravelPackage {
        this.difficultyLevel = difficultyLevel;
    }
 
-
    public String getActivityType() { return activityType; }
    public String getDifficultyLevel() { return difficultyLevel; }
-
 
    @Override
    public String toString() {
@@ -64,13 +76,21 @@ class AdventurePackage extends TravelPackage {
 }
 
 
+/**
+ * Luxury package with accommodation type and all-inclusive option.
+ */
 class LuxuryPackage extends TravelPackage {
-
 
    private String accommodationType;
    private boolean allInclusive;
 
-
+   /**
+    * @param destination travel destination
+    * @param price package price
+    * @param duration trip duration in days
+    * @param accommodationType type of accommodation
+    * @param allInclusive whether package is all-inclusive
+    */
    public LuxuryPackage(String destination, double price, int duration,
                         String accommodationType, boolean allInclusive) {
        super(destination, price, duration);
@@ -78,10 +98,8 @@ class LuxuryPackage extends TravelPackage {
        this.allInclusive = allInclusive;
    }
 
-
    public String getAccommodationType() { return accommodationType; }
    public boolean isAllInclusive() { return allInclusive; }
-
 
    @Override
    public String toString() {
@@ -92,40 +110,47 @@ class LuxuryPackage extends TravelPackage {
 }
 
 
+/**
+ * Customer information holder.
+ */
 class Customer implements Serializable {
-
 
    private String name;
    private String email;
 
-
+   /**
+    * @param name customer name
+    * @param email customer email
+    */
    public Customer(String name, String email) {
        this.name = name;
        this.email = email;
    }
-
 
    public String getName() { return name; }
    public String getEmail() { return email; }
 }
 
 
+/**
+ * Booking association between customer and travel package.
+ */
 class Booking implements Serializable {
-
 
    private Customer customer;
    private TravelPackage travelPackage;
 
-
+   /**
+    * @param customer booking customer
+    * @param travelPackage selected travel package
+    */
    public Booking(Customer customer, TravelPackage travelPackage) {
        this.customer = customer;
        this.travelPackage = travelPackage;
    }
 
-
    public Customer getCustomer() { return customer; }
    public TravelPackage getTravelPackage() { return travelPackage; }
-
 
    @Override
    public String toString() {
@@ -135,14 +160,17 @@ class Booking implements Serializable {
 }
 
 
-class AgencyManager {
+/* BUSINESS LOGIC - Agency Manager */
 
+/**
+ * Manages packages, bookings, and visit statistics.
+ */
+class AgencyManager {
 
    private ArrayList<TravelPackage> packages;
    private ArrayList<Booking> bookings;
    private HashMap<String, TravelPackage> packageMap;
    private HashMap<String, Integer> packageVisits;
-
 
    public AgencyManager() {
        packages = new ArrayList<>();
@@ -151,170 +179,199 @@ class AgencyManager {
        packageVisits = new HashMap<>();
    }
 
-
+   /**
+    * @param travelPackage package to add
+    */
    public void addPackage(TravelPackage travelPackage) {
        packages.add(travelPackage);
        packageMap.put(travelPackage.getDestination(), travelPackage);
        packageVisits.put(travelPackage.getDestination(), 0);
    }
 
-
+   /**
+    * @param booking booking to add
+    */
    public void addBooking(Booking booking) { bookings.add(booking); }
+   
+   /**
+    * @param bookingIndex index of booking to remove
+    */
    public void removeBooking(int bookingIndex) { bookings.remove(bookingIndex); }
 
-
+   /**
+    * @return list of all packages
+    */
    public ArrayList<TravelPackage> getPackages() { return packages; }
+   
+   /**
+    * @return list of all bookings
+    */
    public ArrayList<Booking> getBookings() { return bookings; }
 
-
+   /**
+    * @param destination package destination
+    */
    public void recordPackageClick(String destination) {
        packageVisits.put(destination, packageVisits.getOrDefault(destination, 0) + 1);
    }
 
-
+   /**
+    * @return map of package visit counts
+    */
    public HashMap<String, Integer> getPackageVisits() {
        return packageVisits;
    }
 
-
+   /**
+    * @param visitsData visits data to set
+    */
    public void setPackageVisits(HashMap<String, Integer> visitsData) {
        this.packageVisits = visitsData;
    }
 
-
+   /**
+    * @param keyword destination keyword filter
+    * @param maxPrice maximum price filter
+    * @return filtered package list
+    */
    public ArrayList<TravelPackage> filterPackages(String keyword, double maxPrice) {
-
 
        ArrayList<TravelPackage> filteredPackages = new ArrayList<>();
 
-
        for (TravelPackage travelPackage : packages) {
-
 
            boolean matchesDestination =
                    travelPackage.getDestination().toLowerCase().contains(keyword.toLowerCase());
 
-
            boolean matchesPrice =
                    travelPackage.getPrice() <= maxPrice;
-
 
            if (matchesDestination && matchesPrice) {
                filteredPackages.add(travelPackage);
            }
        }
 
-
-       // Sort by destination for binary search capability
        Collections.sort(filteredPackages, Comparator.comparing(TravelPackage::getDestination));
-
 
        return filteredPackages;
    }
 
-
+   /**
+    * @return packages sorted by price
+    */
    public ArrayList<TravelPackage> sortByPrice() {
        ArrayList<TravelPackage> sortedByPrice = new ArrayList<>(packages);
        Collections.sort(sortedByPrice, Comparator.comparingDouble(TravelPackage::getPrice));
        return sortedByPrice;
    }
 
-
+   /**
+    * @return packages sorted by duration
+    */
    public ArrayList<TravelPackage> sortByDuration() {
        ArrayList<TravelPackage> sortedByDuration = new ArrayList<>(packages);
        Collections.sort(sortedByDuration, Comparator.comparingInt(TravelPackage::getDuration));
        return sortedByDuration;
    }
 
-
+   /**
+    * @param destination package destination
+    * @return package by destination or null
+    */
    public TravelPackage getPackageByDestination(String destination) {
        return packageMap.get(destination);
    }
 }
 
 
+/* FILE I/O - Persistence Manager */
+
+/**
+ * Handles saving and loading bookings and visit statistics.
+ */
 class FileManager {
 
-
+   /**
+    * @param bookingsList bookings to save
+    * @param fileName save file name
+    */
    public static void saveBookings(ArrayList<Booking> bookingsList, String fileName) {
-
 
        try (ObjectOutputStream out =
                     new ObjectOutputStream(new FileOutputStream(fileName))) {
 
-
            out.writeObject(bookingsList);
-
 
        } catch (IOException ioException) {
            System.out.println("Error saving: " + ioException.getMessage());
        }
    }
 
-
+   /**
+    * @param fileName load file name
+    * @return loaded bookings list
+    */
    @SuppressWarnings("unchecked")
    public static ArrayList<Booking> loadBookings(String fileName) {
 
-
        ArrayList<Booking> bookingsList = new ArrayList<>();
-
 
        try (ObjectInputStream in =
                     new ObjectInputStream(new FileInputStream(fileName))) {
 
-
            bookingsList = (ArrayList<Booking>) in.readObject();
-
 
        } catch (IOException | ClassNotFoundException exception) {
            System.out.println("Error loading: " + exception.getMessage());
        }
 
-
        return bookingsList;
    }
 
-
+   /**
+    * @param visitsData visits data to save
+    * @param fileName save file name
+    */
    public static void savePackageVisits(HashMap<String, Integer> visitsData, String fileName) {
-
 
        try (ObjectOutputStream out =
                     new ObjectOutputStream(new FileOutputStream(fileName))) {
 
-
            out.writeObject(visitsData);
-
 
        } catch (IOException ioException) {
            System.out.println("Error saving visits: " + ioException.getMessage());
        }
    }
 
-
+   /**
+    * @param fileName load file name
+    * @return loaded visits data
+    */
    @SuppressWarnings("unchecked")
    public static HashMap<String, Integer> loadPackageVisits(String fileName) {
 
-
        HashMap<String, Integer> visitsData = new HashMap<>();
-
 
        try (ObjectInputStream in =
                     new ObjectInputStream(new FileInputStream(fileName))) {
 
-
            visitsData = (HashMap<String, Integer>) in.readObject();
-
 
        } catch (IOException | ClassNotFoundException exception) {
            System.out.println("Error loading visits: " + exception.getMessage());
        }
-
 
        return visitsData;
    }
 }
 
 
+/* VISUALIZATION - Pie Chart Panel */
+
+/**
+ * Custom JPanel rendering pie chart for package visit statistics.
+ */
 class PieChartPanel extends JPanel {
    private HashMap<String, Integer> data;
    private Color[] colors = {
@@ -326,26 +383,28 @@ class PieChartPanel extends JPanel {
            new Color(160, 120, 50)
    };
 
-
+   /**
+    * @param visitsData visit statistics data
+    */
    public PieChartPanel(HashMap<String, Integer> visitsData) {
        this.data = visitsData;
        setPreferredSize(new Dimension(300, 250));
        setBackground(new Color(245, 247, 250));
    }
 
-
+   /**
+    * @param visitsData updated visit statistics data
+    */
    public void updateData(HashMap<String, Integer> visitsData) {
        this.data = visitsData;
        repaint();
    }
-
 
    @Override
    protected void paintComponent(Graphics graphicsContext) {
        super.paintComponent(graphicsContext);
        Graphics2D graphics2D = (Graphics2D) graphicsContext;
        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
 
        if (data == null || data.isEmpty() || data.values().stream().allMatch(visit -> visit == 0)) {
            graphics2D.setFont(new Font("Georgia", Font.PLAIN, 14));
@@ -354,17 +413,15 @@ class PieChartPanel extends JPanel {
            return;
        }
 
-
        int totalVisits = data.values().stream().mapToInt(Integer::intValue).sum();
        double currentStartAngle = 0;
        int colorIndex = 0;
 
-
+       /* Draw pie slices */
        for (String destination : data.keySet()) {
            int visitCount = data.get(destination);
            double visitPercentage = (double) visitCount / totalVisits;
            double sliceAngle = visitPercentage * 360;
-
 
            graphics2D.setColor(colors[colorIndex % colors.length]);
            graphics2D.fillArc(20, 20, 200, 200, (int) currentStartAngle, (int) sliceAngle);
@@ -372,19 +429,16 @@ class PieChartPanel extends JPanel {
            graphics2D.setStroke(new BasicStroke(2));
            graphics2D.drawArc(20, 20, 200, 200, (int) currentStartAngle, (int) sliceAngle);
 
-
            currentStartAngle += sliceAngle;
            colorIndex++;
        }
 
-
-       // Draw legend
+       /* Draw legend */
        int legendYPosition = 240;
        colorIndex = 0;
        for (String destination : data.keySet()) {
            int visitCount = data.get(destination);
            double visitPercentage = (double) visitCount / totalVisits * 100;
-
 
            graphics2D.setColor(colors[colorIndex % colors.length]);
            graphics2D.fillRect(20, legendYPosition - 10, 12, 12);
@@ -393,7 +447,6 @@ class PieChartPanel extends JPanel {
            String legendLabel = String.format("%s (%.0f%%)", destination, visitPercentage);
            graphics2D.drawString(legendLabel, 40, legendYPosition);
 
-
            legendYPosition += 15;
            colorIndex++;
        }
@@ -401,22 +454,23 @@ class PieChartPanel extends JPanel {
 }
 
 
-public class MainWindow extends JFrame {
+/* MAIN GUI CLASS */
 
+/**
+ * Main application window with CardLayout for multi-panel navigation.
+ */
+public class MainWindow extends JFrame {
 
    private CardLayout cardLayout;
    private JPanel contentArea;
-
 
    private JButton btnHome;
    private JButton btnPackages;
    private JButton btnBookings;
 
-
    private AgencyManager manager;
    private DefaultListModel<String> bookingListModel;
    private PieChartPanel pieChartPanel;
-
 
    private static final Color SIDEBAR_BG = new Color(30, 40, 60);
    private static final Color ACCENT = new Color(70, 130, 180);
@@ -427,16 +481,13 @@ public class MainWindow extends JFrame {
    private static final Color GREEN = new Color(70, 160, 100);
    private static final Color RED = new Color(200, 80, 80);
 
-
    private TravelPackage selectedPackage = null;
-
 
    public MainWindow() {
 
-
        manager = new AgencyManager();
 
-
+       /* Initialize sample packages */
        manager.addPackage(new AdventurePackage("Bali, Indonesia", 900, 8, "Hiking & Surfing", "Moderate"));
        manager.addPackage(new AdventurePackage("Safari, Kenya", 4200, 12, "Wildlife Safari", "Challenging"));
        manager.addPackage(new LuxuryPackage("Paris, France", 1200, 5, "5-Star Hotel", true));
@@ -444,31 +495,25 @@ public class MainWindow extends JFrame {
        manager.addPackage(new LuxuryPackage("Tokyo, Japan", 2200, 10, "Luxury Resort", false));
        manager.addPackage(new LuxuryPackage("Maldives", 3500, 7, "Overwater Villa", true));
 
-
        bookingListModel = new DefaultListModel<>();
 
-
+       /* Load persisted data */
        ArrayList<Booking> loadedBookings = FileManager.loadBookings("bookings.dat");
        HashMap<String, Integer> loadedVisits = FileManager.loadPackageVisits("visits.dat");
 
-
        manager.getBookings().clear();
        bookingListModel.clear();
-
 
        for (Booking booking : loadedBookings) {
            manager.addBooking(booking);
            bookingListModel.addElement(booking.toString());
        }
 
-
        if (!loadedVisits.isEmpty()) {
            manager.setPackageVisits(loadedVisits);
        }
 
-
        pieChartPanel = new PieChartPanel(manager.getPackageVisits());
-
 
        setTitle("Travel Planner");
        setSize(850, 560);
@@ -476,10 +521,9 @@ public class MainWindow extends JFrame {
        setResizable(false);
        setLayout(new BorderLayout());
 
-
        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-
+       /* Save data on close */
        addWindowListener(new WindowAdapter() {
            @Override
            public void windowClosing(WindowEvent windowEvent) {
@@ -489,20 +533,20 @@ public class MainWindow extends JFrame {
            }
        });
 
-
        add(buildSidebar(), BorderLayout.WEST);
        add(buildContentArea(), BorderLayout.CENTER);
 
-
        showPanel("HOME");
-
 
        setVisible(true);
    }
 
+   /* ... SIDEBAR NAVIGATION ... */
 
+   /**
+    * @return sidebar navigation panel
+    */
    private JPanel buildSidebar() {
-
 
        JPanel sidebar = new JPanel();
        sidebar.setBackground(SIDEBAR_BG);
@@ -510,21 +554,17 @@ public class MainWindow extends JFrame {
        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
        sidebar.setBorder(new EmptyBorder(24, 0, 20, 0));
 
-
        JLabel appTitle = new JLabel("Travel Planner");
        appTitle.setFont(new Font("Georgia", Font.BOLD, 16));
        appTitle.setForeground(WHITE);
        appTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-
        sidebar.add(appTitle);
        sidebar.add(Box.createVerticalStrut(28));
-
 
        btnHome = makeNavButton("Home", "HOME");
        btnPackages = makeNavButton("Packages", "PACKAGES");
        btnBookings = makeNavButton("My Bookings", "BOOKINGS");
-
 
        sidebar.add(btnHome);
        sidebar.add(Box.createVerticalStrut(6));
@@ -532,145 +572,134 @@ public class MainWindow extends JFrame {
        sidebar.add(Box.createVerticalStrut(6));
        sidebar.add(btnBookings);
 
-
        sidebar.add(Box.createVerticalGlue());
-
 
        return sidebar;
    }
 
+   /* ... CONTENT AREA WITH CARD LAYOUT ... */
 
+   /**
+    * @return main content area with switchable panels
+    */
    private JPanel buildContentArea() {
-
 
        cardLayout = new CardLayout();
        contentArea = new JPanel(cardLayout);
 
-
        contentArea.setBackground(CONTENT_BG);
-
 
        contentArea.add(buildHomePanel(), "HOME");
        contentArea.add(buildPackagesPanel(), "PACKAGES");
        contentArea.add(buildBookingsPanel(), "BOOKINGS");
 
-
        return contentArea;
    }
 
+   /* ... HOME PANEL ... */
 
+   /**
+    * @return home panel with welcome, user info, and statistics
+    */
    private JPanel buildHomePanel() {
-
 
        JPanel panel = new JPanel(new BorderLayout(0, 20));
        panel.setBackground(CONTENT_BG);
        panel.setBorder(new EmptyBorder(30, 30, 30, 30));
 
-
        JLabel welcomeLabel = new JLabel("Welcome back, Mila");
        welcomeLabel.setFont(new Font("Georgia", Font.BOLD, 22));
        welcomeLabel.setForeground(TEXT_DARK);
 
-
        JLabel subtitleLabel = new JLabel("What would you like to do today?");
        subtitleLabel.setForeground(TEXT_LIGHT);
-
 
        JPanel headerPanel = new JPanel(new BorderLayout());
        headerPanel.setBackground(CONTENT_BG);
        headerPanel.add(welcomeLabel, BorderLayout.NORTH);
        headerPanel.add(subtitleLabel, BorderLayout.SOUTH);
 
-
        JPanel middlePanel = new JPanel(new GridLayout(1, 2, 20, 0));
        middlePanel.setBackground(CONTENT_BG);
 
-
+       /* User info card */
        JPanel userInfoCard = new JPanel();
        userInfoCard.setLayout(new BoxLayout(userInfoCard, BoxLayout.Y_AXIS));
        userInfoCard.setBackground(WHITE);
        userInfoCard.setBorder(new EmptyBorder(18, 18, 18, 18));
 
-
        userInfoCard.add(new JLabel("Your Information"));
        userInfoCard.add(new JLabel("Name: Mila Shteryanova"));
        userInfoCard.add(new JLabel("Email: mila@email.com"));
 
-
+       /* Quick actions card */
        JPanel quickActionsCard = new JPanel(new BorderLayout());
        quickActionsCard.setBackground(WHITE);
        quickActionsCard.setBorder(new EmptyBorder(18, 18, 18, 18));
 
-
        JPanel quickActionButtonPanel = new JPanel(new GridLayout(1, 2, 15, 0));
        quickActionButtonPanel.setBackground(WHITE);
-
 
        JButton browsePackagesButton = makeSimpleButton("Browse Packages", ACCENT);
        JButton myBookingsButton = makeSimpleButton("My Bookings", new Color(100, 60, 160));
 
-
        browsePackagesButton.addActionListener(actionEvent -> showPanel("PACKAGES"));
        myBookingsButton.addActionListener(actionEvent -> showPanel("BOOKINGS"));
-
 
        quickActionButtonPanel.add(browsePackagesButton);
        quickActionButtonPanel.add(myBookingsButton);
 
-
+       /* Statistics section */
        JPanel statisticsPanel = new JPanel(new BorderLayout());
        statisticsPanel.setBackground(WHITE);
        statisticsPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-
 
        JLabel statisticsTitle = new JLabel("Package Visits Statistics");
        statisticsTitle.setFont(new Font("Georgia", Font.BOLD, 14));
        statisticsTitle.setForeground(TEXT_DARK);
 
-
        statisticsPanel.add(statisticsTitle, BorderLayout.NORTH);
        statisticsPanel.add(pieChartPanel, BorderLayout.CENTER);
-
 
        quickActionsCard.add(quickActionButtonPanel, BorderLayout.NORTH);
        quickActionsCard.add(statisticsPanel, BorderLayout.CENTER);
 
-
        middlePanel.add(userInfoCard);
        middlePanel.add(quickActionsCard);
-
 
        panel.add(headerPanel, BorderLayout.NORTH);
        panel.add(middlePanel, BorderLayout.CENTER);
 
-
        return panel;
    }
 
-
+   /**
+    * @param emailAddress email to validate
+    * @return true if valid email format
+    */
    private boolean isValidEmail(String emailAddress) {
        return emailAddress.contains("@") && emailAddress.contains(".com");
    }
 
+   /* ... PACKAGES PANEL ... */
 
+   /**
+    * @return packages panel with filtering, sorting, and booking
+    */
    private JPanel buildPackagesPanel() {
-
 
        JPanel panel = new JPanel(new BorderLayout());
        panel.setBackground(CONTENT_BG);
 
-
+       /* Filter/Sort controls */
        JPanel filterBar = new JPanel();
-
 
        JTextField searchField = new JTextField(10);
        JTextField maxPriceField = new JTextField(6);
 
-
        JButton filterButton = makeSimpleButton("Filter", ACCENT);
        JButton sortByPriceButton = makeSimpleButton("Sort by Price", new Color(100, 150, 100));
        JButton sortByDurationButton = makeSimpleButton("Sort by Duration", new Color(150, 100, 100));
-
 
        filterBar.add(new JLabel("Destination:"));
        filterBar.add(searchField);
@@ -680,19 +709,16 @@ public class MainWindow extends JFrame {
        filterBar.add(sortByPriceButton);
        filterBar.add(sortByDurationButton);
 
-
+       /* Grid for package cards */
        JPanel packagesGridPanel = new JPanel(new GridLayout(2, 3, 15, 15));
        JScrollPane scrollPane = new JScrollPane(packagesGridPanel);
 
-
+       /* Refresh display based on filters */
        Runnable refreshPackagesDisplay = () -> {
-
 
            packagesGridPanel.removeAll();
 
-
            String searchKeyword = searchField.getText().trim();
-
 
            double maximumPrice;
            try {
@@ -707,13 +733,11 @@ public class MainWindow extends JFrame {
                return;
            }
 
-
            ArrayList<TravelPackage> filteredPackagesList =
                    manager.filterPackages(searchKeyword, maximumPrice);
 
-
+           /* Create package cards */
            for (TravelPackage travelPackage : filteredPackagesList) {
-
 
                JButton packageCard = new JButton();
                packageCard.setLayout(new BoxLayout(packageCard, BoxLayout.Y_AXIS));
@@ -724,11 +748,9 @@ public class MainWindow extends JFrame {
                        new EmptyBorder(14, 14, 14, 14)
                ));
 
-
                JLabel destinationLabel = new JLabel(travelPackage.getDestination());
                JLabel priceLabel = new JLabel("$" + travelPackage.getPrice());
                JLabel durationLabel = new JLabel(travelPackage.getDuration() + " days");
-
 
                if (travelPackage instanceof AdventurePackage adventurePackage) {
                    JLabel activityTypeLabel = new JLabel(adventurePackage.getActivityType());
@@ -756,10 +778,8 @@ public class MainWindow extends JFrame {
                    packageCard.add(durationLabel);
                }
 
-
                packageCard.addActionListener(actionEvent -> {
                    selectedPackage = travelPackage;
-
 
                    for (Component component : packagesGridPanel.getComponents()) {
                        if (component instanceof JButton button) {
@@ -767,28 +787,23 @@ public class MainWindow extends JFrame {
                        }
                    }
 
-
                    packageCard.setBackground(new Color(235, 244, 255));
-
 
                    manager.recordPackageClick(travelPackage.getDestination());
                    pieChartPanel.updateData(manager.getPackageVisits());
                });
 
-
                packagesGridPanel.add(packageCard);
            }
-
 
            packagesGridPanel.revalidate();
            packagesGridPanel.repaint();
        };
 
-
        refreshPackagesDisplay.run();
        filterButton.addActionListener(actionEvent -> refreshPackagesDisplay.run());
 
-
+       /* Sort by Price action */
        sortByPriceButton.addActionListener(actionEvent -> {
            packagesGridPanel.removeAll();
            ArrayList<TravelPackage> pricesSortedList = manager.sortByPrice();
@@ -802,11 +817,9 @@ public class MainWindow extends JFrame {
                        new EmptyBorder(14, 14, 14, 14)
                ));
 
-
                JLabel destinationLabel = new JLabel(travelPackage.getDestination());
                JLabel priceLabel = new JLabel("$" + travelPackage.getPrice());
                JLabel durationLabel = new JLabel(travelPackage.getDuration() + " days");
-
 
                if (travelPackage instanceof AdventurePackage adventurePackage) {
                    JLabel activityTypeLabel = new JLabel(adventurePackage.getActivityType());
@@ -834,7 +847,6 @@ public class MainWindow extends JFrame {
                    packageCard.add(durationLabel);
                }
 
-
                packageCard.addActionListener(actionEvent2 -> {
                    selectedPackage = travelPackage;
                    for (Component component : packagesGridPanel.getComponents()) {
@@ -844,11 +856,9 @@ public class MainWindow extends JFrame {
                    }
                    packageCard.setBackground(new Color(235, 244, 255));
 
-
                    manager.recordPackageClick(travelPackage.getDestination());
                    pieChartPanel.updateData(manager.getPackageVisits());
                });
-
 
                packagesGridPanel.add(packageCard);
            }
@@ -856,7 +866,7 @@ public class MainWindow extends JFrame {
            packagesGridPanel.repaint();
        });
 
-
+       /* Sort by Duration action */
        sortByDurationButton.addActionListener(actionEvent -> {
            packagesGridPanel.removeAll();
            ArrayList<TravelPackage> durationSortedList = manager.sortByDuration();
@@ -870,11 +880,9 @@ public class MainWindow extends JFrame {
                        new EmptyBorder(14, 14, 14, 14)
                ));
 
-
                JLabel destinationLabel = new JLabel(travelPackage.getDestination());
                JLabel priceLabel = new JLabel("$" + travelPackage.getPrice());
                JLabel durationLabel = new JLabel(travelPackage.getDuration() + " days");
-
 
                if (travelPackage instanceof AdventurePackage adventurePackage) {
                    JLabel activityTypeLabel = new JLabel(adventurePackage.getActivityType());
@@ -902,7 +910,6 @@ public class MainWindow extends JFrame {
                    packageCard.add(durationLabel);
                }
 
-
                packageCard.addActionListener(actionEvent2 -> {
                    selectedPackage = travelPackage;
                    for (Component component : packagesGridPanel.getComponents()) {
@@ -912,11 +919,9 @@ public class MainWindow extends JFrame {
                    }
                    packageCard.setBackground(new Color(235, 244, 255));
 
-
                    manager.recordPackageClick(travelPackage.getDestination());
                    pieChartPanel.updateData(manager.getPackageVisits());
                });
-
 
                packagesGridPanel.add(packageCard);
            }
@@ -924,17 +929,14 @@ public class MainWindow extends JFrame {
            packagesGridPanel.repaint();
        });
 
-
+       /* Booking form */
        JPanel bottomPanel = new JPanel();
-
 
        JTextField customerNameField = new JTextField(10);
        JTextField customerEmailField = new JTextField(10);
        JButton bookButton = makeSimpleButton("Book", ACCENT);
 
-
        bookButton.addActionListener(actionEvent -> {
-
 
            if (selectedPackage == null) {
                JOptionPane.showMessageDialog(this,
@@ -944,7 +946,6 @@ public class MainWindow extends JFrame {
                return;
            }
 
-
            if (customerNameField.getText().isBlank()) {
                JOptionPane.showMessageDialog(this,
                        "Please enter your name.",
@@ -952,7 +953,6 @@ public class MainWindow extends JFrame {
                        JOptionPane.ERROR_MESSAGE);
                return;
            }
-
 
            if (customerEmailField.getText().isBlank()) {
                JOptionPane.showMessageDialog(this,
@@ -962,7 +962,6 @@ public class MainWindow extends JFrame {
                return;
            }
 
-
            if (!isValidEmail(customerEmailField.getText())) {
                JOptionPane.showMessageDialog(this,
                        "Please enter a valid email (must contain @ and .com).",
@@ -971,28 +970,23 @@ public class MainWindow extends JFrame {
                return;
            }
 
-
            Booking newBooking = new Booking(
                    new Customer(customerNameField.getText(), customerEmailField.getText()),
                    selectedPackage
            );
 
-
            manager.addBooking(newBooking);
            bookingListModel.addElement(newBooking.toString());
-
 
            JOptionPane.showMessageDialog(this,
                    "Booking successful!\n\n" + newBooking.toString(),
                    "Success",
                    JOptionPane.INFORMATION_MESSAGE);
 
-
            customerNameField.setText("");
            customerEmailField.setText("");
            selectedPackage = null;
        });
-
 
        bottomPanel.add(new JLabel("Name:"));
        bottomPanel.add(customerNameField);
@@ -1000,29 +994,28 @@ public class MainWindow extends JFrame {
        bottomPanel.add(customerEmailField);
        bottomPanel.add(bookButton);
 
-
        panel.add(filterBar, BorderLayout.NORTH);
        panel.add(scrollPane, BorderLayout.CENTER);
        panel.add(bottomPanel, BorderLayout.SOUTH);
 
-
        return panel;
    }
 
+   /* ... BOOKINGS PANEL ... */
 
+   /**
+    * @return bookings panel with list, update, and delete functionality
+    */
    private JPanel buildBookingsPanel() {
-
 
        JPanel panel = new JPanel(new BorderLayout());
 
-
        JList<String> bookingsList = new JList<>(bookingListModel);
-
 
        JButton deleteButton = makeSimpleButton("Delete", RED);
        JButton updateButton = makeSimpleButton("Update", ACCENT);
 
-
+       /* Delete booking */
        deleteButton.addActionListener(actionEvent -> {
            int selectedIndex = bookingsList.getSelectedIndex();
            if (selectedIndex == -1) {
@@ -1033,12 +1026,10 @@ public class MainWindow extends JFrame {
                return;
            }
 
-
            int userChoice = JOptionPane.showConfirmDialog(this,
                    "Are you sure you want to delete this booking?",
                    "Confirm Delete",
                    JOptionPane.YES_NO_OPTION);
-
 
            if (userChoice == JOptionPane.YES_OPTION) {
                manager.removeBooking(selectedIndex);
@@ -1046,9 +1037,8 @@ public class MainWindow extends JFrame {
            }
        });
 
-
+       /* Update booking */
        updateButton.addActionListener(actionEvent -> {
-
 
            int selectedIndex = bookingsList.getSelectedIndex();
            if (selectedIndex == -1) {
@@ -1059,36 +1049,27 @@ public class MainWindow extends JFrame {
                return;
            }
 
-
            Booking selectedBooking = manager.getBookings().get(selectedIndex);
-
 
            JTextField updateNameField =
                    new JTextField(selectedBooking.getCustomer().getName());
 
-
            JTextField updateEmailField =
                    new JTextField(selectedBooking.getCustomer().getEmail());
-
 
            JTextField updateDestinationField =
                    new JTextField(selectedBooking.getTravelPackage().getDestination());
 
-
            JPanel updateFormPanel = new JPanel(new GridLayout(3, 2));
-
 
            updateFormPanel.add(new JLabel("Name:"));
            updateFormPanel.add(updateNameField);
 
-
            updateFormPanel.add(new JLabel("Email:"));
            updateFormPanel.add(updateEmailField);
 
-
            updateFormPanel.add(new JLabel("Destination:"));
            updateFormPanel.add(updateDestinationField);
-
 
            int dialogResult = JOptionPane.showConfirmDialog(
                    this,
@@ -1097,9 +1078,7 @@ public class MainWindow extends JFrame {
                    JOptionPane.OK_CANCEL_OPTION
            );
 
-
            if (dialogResult == JOptionPane.OK_OPTION) {
-
 
                if (updateNameField.getText().isBlank()) {
                    JOptionPane.showMessageDialog(this,
@@ -1109,7 +1088,6 @@ public class MainWindow extends JFrame {
                    return;
                }
 
-
                if (updateEmailField.getText().isBlank()) {
                    JOptionPane.showMessageDialog(this,
                            "Email cannot be empty.",
@@ -1117,7 +1095,6 @@ public class MainWindow extends JFrame {
                            JOptionPane.ERROR_MESSAGE);
                    return;
                }
-
 
                if (!isValidEmail(updateEmailField.getText())) {
                    JOptionPane.showMessageDialog(this,
@@ -1127,12 +1104,9 @@ public class MainWindow extends JFrame {
                    return;
                }
 
-
                TravelPackage originalPackage = selectedBooking.getTravelPackage();
 
-
                TravelPackage updatedPackage;
-
 
                if (originalPackage instanceof AdventurePackage adventurePackage) {
                    updatedPackage = new AdventurePackage(
@@ -1158,7 +1132,6 @@ public class MainWindow extends JFrame {
                    );
                }
 
-
                Booking updatedBooking = new Booking(
                        new Customer(
                                updateNameField.getText(),
@@ -1167,32 +1140,29 @@ public class MainWindow extends JFrame {
                        updatedPackage
                );
 
-
                manager.getBookings().set(selectedIndex, updatedBooking);
                bookingListModel.set(selectedIndex, updatedBooking.toString());
            }
        });
 
-
        JPanel buttonControlPanel = new JPanel();
        buttonControlPanel.add(updateButton);
        buttonControlPanel.add(deleteButton);
 
-
        panel.add(new JScrollPane(bookingsList), BorderLayout.CENTER);
        panel.add(buttonControlPanel, BorderLayout.SOUTH);
 
-
        return panel;
    }
-   // =======================================================
 
+   /* ... HELPER METHODS ... */
 
+   /**
+    * @param panelName panel name to display
+    */
    private void showPanel(String panelName) {
 
-
        cardLayout.show(contentArea, panelName);
-
 
        for (JButton navigationButton : new JButton[]{btnHome, btnPackages, btnBookings}) {
            if (navigationButton != null) {
@@ -1201,19 +1171,21 @@ public class MainWindow extends JFrame {
            }
        }
 
-
        JButton activeNavButton = switch (panelName) {
            case "HOME" -> btnHome;
            case "PACKAGES" -> btnPackages;
            default -> btnBookings;
        };
 
-
        activeNavButton.setBackground(ACCENT);
        activeNavButton.setForeground(WHITE);
    }
 
-
+   /**
+    * @param buttonLabel navigation button label
+    * @param targetPanelName panel to navigate to
+    * @return styled navigation button
+    */
    private JButton makeNavButton(String buttonLabel, String targetPanelName) {
        JButton navigationButton = new JButton(buttonLabel);
        navigationButton.setForeground(TEXT_LIGHT);
@@ -1223,7 +1195,11 @@ public class MainWindow extends JFrame {
        return navigationButton;
    }
 
-
+   /**
+    * @param buttonText button display text
+    * @param backgroundColor button background color
+    * @return styled simple button
+    */
    private JButton makeSimpleButton(String buttonText, Color backgroundColor) {
        JButton simpleButton = new JButton(buttonText);
        simpleButton.setBackground(backgroundColor);
@@ -1231,7 +1207,6 @@ public class MainWindow extends JFrame {
        simpleButton.setFocusPainted(false);
        return simpleButton;
    }
-
 
    public static void main(String[] args) {
        SwingUtilities.invokeLater(MainWindow::new);
