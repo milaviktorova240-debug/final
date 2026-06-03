@@ -12,9 +12,6 @@ import java.util.HashMap;
 
 /* DATA MODEL - Travel Packages */
 
-/**
- * Basic travel package with destination, price, and duration.
- */
 class TravelPackage implements Serializable {
 
    private String destination;
@@ -43,9 +40,6 @@ class TravelPackage implements Serializable {
 }
 
 
-/**
- * Adventure package with activity type and difficulty level.
- */
 class AdventurePackage extends TravelPackage {
 
    private String activityType;
@@ -76,9 +70,6 @@ class AdventurePackage extends TravelPackage {
 }
 
 
-/**
- * Luxury package with accommodation type and all-inclusive option.
- */
 class LuxuryPackage extends TravelPackage {
 
    private String accommodationType;
@@ -110,9 +101,6 @@ class LuxuryPackage extends TravelPackage {
 }
 
 
-/**
- * Customer information holder.
- */
 class Customer implements Serializable {
 
    private String name;
@@ -132,9 +120,6 @@ class Customer implements Serializable {
 }
 
 
-/**
- * Booking association between customer and travel package.
- */
 class Booking implements Serializable {
 
    private Customer customer;
@@ -179,52 +164,28 @@ class AgencyManager {
        packageVisits = new HashMap<>();
    }
 
-   /**
-    * @param travelPackage package to add
-    */
    public void addPackage(TravelPackage travelPackage) {
        packages.add(travelPackage);
        packageMap.put(travelPackage.getDestination(), travelPackage);
        packageVisits.put(travelPackage.getDestination(), 0);
    }
 
-   /**
-    * @param booking booking to add
-    */
    public void addBooking(Booking booking) { bookings.add(booking); }
    
-   /**
-    * @param bookingIndex index of booking to remove
-    */
    public void removeBooking(int bookingIndex) { bookings.remove(bookingIndex); }
 
-   /**
-    * @return list of all packages
-    */
    public ArrayList<TravelPackage> getPackages() { return packages; }
    
-   /**
-    * @return list of all bookings
-    */
    public ArrayList<Booking> getBookings() { return bookings; }
 
-   /**
-    * @param destination package destination
-    */
    public void recordPackageClick(String destination) {
        packageVisits.put(destination, packageVisits.getOrDefault(destination, 0) + 1);
    }
 
-   /**
-    * @return map of package visit counts
-    */
    public HashMap<String, Integer> getPackageVisits() {
        return packageVisits;
    }
 
-   /**
-    * @param visitsData visits data to set
-    */
    public void setPackageVisits(HashMap<String, Integer> visitsData) {
        this.packageVisits = visitsData;
    }
@@ -274,10 +235,6 @@ class AgencyManager {
        return sortedByDuration;
    }
 
-   /**
-    * @param destination package destination
-    * @return package by destination or null
-    */
    public TravelPackage getPackageByDestination(String destination) {
        return packageMap.get(destination);
    }
@@ -291,10 +248,6 @@ class AgencyManager {
  */
 class FileManager {
 
-   /**
-    * @param bookingsList bookings to save
-    * @param fileName save file name
-    */
    public static void saveBookings(ArrayList<Booking> bookingsList, String fileName) {
 
        try (ObjectOutputStream out =
@@ -307,10 +260,6 @@ class FileManager {
        }
    }
 
-   /**
-    * @param fileName load file name
-    * @return loaded bookings list
-    */
    @SuppressWarnings("unchecked")
    public static ArrayList<Booking> loadBookings(String fileName) {
 
@@ -328,10 +277,6 @@ class FileManager {
        return bookingsList;
    }
 
-   /**
-    * @param visitsData visits data to save
-    * @param fileName save file name
-    */
    public static void savePackageVisits(HashMap<String, Integer> visitsData, String fileName) {
 
        try (ObjectOutputStream out =
@@ -344,10 +289,6 @@ class FileManager {
        }
    }
 
-   /**
-    * @param fileName load file name
-    * @return loaded visits data
-    */
    @SuppressWarnings("unchecked")
    public static HashMap<String, Integer> loadPackageVisits(String fileName) {
 
@@ -392,9 +333,6 @@ class PieChartPanel extends JPanel {
        setBackground(new Color(245, 247, 250));
    }
 
-   /**
-    * @param visitsData updated visit statistics data
-    */
    public void updateData(HashMap<String, Integer> visitsData) {
        this.data = visitsData;
        repaint();
@@ -543,9 +481,6 @@ public class MainWindow extends JFrame {
 
    /* ... SIDEBAR NAVIGATION ... */
 
-   /**
-    * @return sidebar navigation panel
-    */
    private JPanel buildSidebar() {
 
        JPanel sidebar = new JPanel();
@@ -579,9 +514,6 @@ public class MainWindow extends JFrame {
 
    /* ... CONTENT AREA WITH CARD LAYOUT ... */
 
-   /**
-    * @return main content area with switchable panels
-    */
    private JPanel buildContentArea() {
 
        cardLayout = new CardLayout();
@@ -598,9 +530,6 @@ public class MainWindow extends JFrame {
 
    /* ... HOME PANEL ... */
 
-   /**
-    * @return home panel with welcome, user info, and statistics
-    */
    private JPanel buildHomePanel() {
 
        JPanel panel = new JPanel(new BorderLayout(0, 20));
@@ -684,7 +613,7 @@ public class MainWindow extends JFrame {
    /* ... PACKAGES PANEL ... */
 
    /**
-    * @return packages panel with filtering, sorting, and booking
+    * @return packages panel with filtering, sorting, and booking functionality
     */
    private JPanel buildPackagesPanel() {
 
@@ -1157,11 +1086,7 @@ public class MainWindow extends JFrame {
 
    /* ... HELPER METHODS ... */
 
-   /**
-    * @param panelName panel name to display
-    */
    private void showPanel(String panelName) {
-
        cardLayout.show(contentArea, panelName);
 
        for (JButton navigationButton : new JButton[]{btnHome, btnPackages, btnBookings}) {
@@ -1181,11 +1106,6 @@ public class MainWindow extends JFrame {
        activeNavButton.setForeground(WHITE);
    }
 
-   /**
-    * @param buttonLabel navigation button label
-    * @param targetPanelName panel to navigate to
-    * @return styled navigation button
-    */
    private JButton makeNavButton(String buttonLabel, String targetPanelName) {
        JButton navigationButton = new JButton(buttonLabel);
        navigationButton.setForeground(TEXT_LIGHT);
@@ -1195,11 +1115,6 @@ public class MainWindow extends JFrame {
        return navigationButton;
    }
 
-   /**
-    * @param buttonText button display text
-    * @param backgroundColor button background color
-    * @return styled simple button
-    */
    private JButton makeSimpleButton(String buttonText, Color backgroundColor) {
        JButton simpleButton = new JButton(buttonText);
        simpleButton.setBackground(backgroundColor);
